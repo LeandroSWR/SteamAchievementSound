@@ -11,17 +11,29 @@ namespace SteamAchievementSound
     {
         private ScrapingBrowser scrapingBrowser;
 
+        private GamesManager gamesManager;
+
         private Dictionary<string, AchievementInfo> achievements;
 
-        public AchievementSound()
+        private string userID;
+        private string appID;
+
+        public AchievementSound(string userID)
         {
             scrapingBrowser = new ScrapingBrowser();
+            gamesManager = new GamesManager(userID);
             achievements = new Dictionary<string, AchievementInfo>();
+
+            this.userID = userID;
         }
 
         public void Run()
         {
-            HtmlNode html = GetHtml("https://steamcommunity.com/id/xShadoWalkeR/stats/appid/12210/achievements");
+            HtmlNode html = GetHtml($"https://steamcommunity.com/profiles/{userID}");
+
+            appID = gamesManager.GetAppID(GetGameName(html));
+
+            html = GetHtml($"https://steamcommunity.com/profiles/{userID}/stats/appid/{appID}/achievements");
             GetAchievements(html);
 
             foreach(AchievementInfo info in achievements.Values)
@@ -30,6 +42,9 @@ namespace SteamAchievementSound
                 Console.WriteLine();
             }
         }
+
+        private string GetGameName(HtmlNode html) => 
+            html.CssSelect("div.profile_in_game_name").First().InnerText;
 
         private void GetAchievements(HtmlNode html)
         {

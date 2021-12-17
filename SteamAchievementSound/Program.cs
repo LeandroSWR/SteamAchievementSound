@@ -14,7 +14,9 @@ namespace SteamAchievementSound
         {
             achievementSound = new AchievementSound();
 
+            achievementSound.Run();
 
+            Console.ReadKey();
         }
     }
 }
